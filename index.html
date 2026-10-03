@@ -42,7 +42,8 @@ const UI={rec:['Recetas','Техкарты','Recipes'],pf:['Semiacabados','По�
  load:['Cargando…','Загрузка…','Loading…'],noAcc:['Sin acceso','Нет доступа','No access'],noAccTxt:['Envíe este ID al administrador:','Передайте этот ID администратору:','Send this ID to the administrator:'],badAuth:['Abra la app desde el bot de Telegram','Откройте приложение из бота в Telegram','Open the app from the Telegram bot'],err:['Error de carga','Ошибка загрузки','Loading error'],retry:['Reintentar','Повторить','Retry'],empty:['No hay recetas','Рецептов пока нет','No recipes yet']};
 const U={g:['g','г','g'],kg:['kg','кг','kg'],pcs:['uds','шт','pcs']};
 const t=k=>UI[k][lg];
-const isCake=x=>/^торт/i.test(String(x.u||'').trim());
+// Торт: «Ед_выхода» = торт; если скрипт старый и единицы не передаёт, смотрим на название.
+const isCake=x=>x.u?/^торт/i.test(String(x.u).trim()):/торт|tarta|cake/i.test((x.n||[]).join(' '));
 const fa=(n,u)=>u==='шт'?+n.toFixed(1)+' '+U.pcs[lg]:+(n<10?n.toFixed(1):Math.round(n))+' '+U.g[lg];
 // {3} в названии заготовки = 3 на один торт/порцию, умножается на выбранное количество.
 // Со словами: {3|кольцо|кольца|колец} (русские формы) или {3|aro|aros} (1 / много).
