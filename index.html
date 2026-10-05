@@ -83,7 +83,7 @@ function r(){
   const n1=isCake(x)&&c.kind==='pf'&&c.y?calc(x,1).need[c.id]:0;
   if(n1){const C=view.n||4,k=n1*C/c.y;
    app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('porCake')} · ${t('yl')} ${fa(n1*C,'г')}</span><select onchange="view.n=+this.value;r()">${opts(Math.max(20,C),C)}</select></div>${rows(c,k,x)}${steps(c)}`;return}
-  app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('bt')} · ${t('yl')} ${c.y?fa(c.y*B,'г'):(capOf(x,c)||1)*B+' '+U.pcs[lg]}</span><select onchange="B=+this.value;r()">${opts(Math.max(10,B),B)}</select></div>${rows(c,B,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}${used.length?`<h2>${t('used')}</h2>${used.map(u=>`<div class="mute">${u}</div>`).join('')}`:''}`;return}
+  app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('bt')}${c.y?' · '+t('yl')+' '+fa(c.y*B,'г'):c.cap?' · '+t('yl')+' '+capOf(x,c)*B+' '+U.pcs[lg]:''}</span><select onchange="B=+this.value;r()">${opts(Math.max(10,B),B)}</select></div>${rows(c,B,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}${used.length?`<h2>${t('used')}</h2>${used.map(u=>`<div class="mute">${u}</div>`).join('')}`:''}`;return}
  const {f,need}=calc(x,N);
  const top=c=>x.comps.some(q=>q.kind!=='pf'&&q.ings.some(g=>g.ref===c.id));
  app.innerHTML=`${back}<h1>${x.n[lg]}</h1><div class="mute">${x.c[lg]}</div>${img(x.img,'hero',x.n[lg])}<div class="yield"><span>${t(isCake(x)?'porCake':'porQty')}</span><select onchange="N=+this.value;r()">${opts(60,N)}</select></div>`+
