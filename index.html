@@ -50,7 +50,7 @@ const fa=(n,u)=>(u=String(u||'').replace(/^шт\/\d+$/,'шт'),u==='шт')?+n.to
 const plural=(n,f)=>f.length===3?f[n%10===1&&n%100!==11?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2]:f[n===1?0:1];
 const cn=(c,k)=>phn(c.n[lg],k);
 const phn=(s,k)=>String(s||'').replace(/\{(\d+(?:[.,]\d+)?)((?:\|[^|}]*)*)\}/g,(_,v,w)=>{const n=+(parseFloat(v.replace(',','.'))*(k||1)).toFixed(1);const f=w?w.slice(1).split('|'):[];return f.length?n+' '+plural(n,f):String(n)});
-const go=v=>{prev=view;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=isCake(R[v.i])?3:5;if(v.t==='pf'&&!v.n)view.n=4;r();scrollTo(0,0)};
+const go=v=>{prev=view;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=R[v.i].q||(isCake(R[v.i])?3:5);if(v.t==='pf'&&!v.n)view.n=4;r();scrollTo(0,0)};
 const goBack=()=>{view=prev;prev={t:'list'};r();scrollTo(0,0)};
 const opts=(m,sel)=>Array.from({length:m},(_,i)=>i+1).map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
 const allC=x=>[...(x.ext||[]),...x.comps];
