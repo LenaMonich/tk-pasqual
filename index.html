@@ -44,7 +44,7 @@ const U={g:['g','г','g'],kg:['kg','кг','kg'],pcs:['uds','шт','pcs']};
 const t=k=>UI[k][lg];
 // Торт: «Ед_выхода» = торт; если скрипт старый и единицы не передаёт, смотрим на название.
 const isCake=x=>x.u?/^торт/i.test(String(x.u).trim()):/торт|tarta|cake/i.test((x.n||[]).join(' '));
-const fa=(n,u)=>u==='шт'?+n.toFixed(1)+' '+U.pcs[lg]:+(n<10?n.toFixed(1):Math.round(n))+' '+U.g[lg];
+const fa=(n,u)=>(u=String(u||'').replace(/^шт\/\d+$/,'шт'),u==='шт')?+n.toFixed(1)+' '+U.pcs[lg]:+(n<10?n.toFixed(1):Math.round(n))+' '+U.g[lg];
 // {3} в названии заготовки = 3 на один торт/порцию, умножается на выбранное количество.
 // Со словами: {3|кольцо|кольца|колец} (русские формы) или {3|aro|aros} (1 / много).
 const plural=(n,f)=>f.length===3?f[n%10===1&&n%100!==11?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2]:f[n===1?0:1];
@@ -53,10 +53,12 @@ const go=v=>{prev=view;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=isCake(R[v.i])?3
 const goBack=()=>{view=prev;prev={t:'list'};r();scrollTo(0,0)};
 const opts=(m,sel)=>Array.from({length:m},(_,i)=>i+1).map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
 const allC=x=>[...(x.ext||[]),...x.comps];
+// Сколько штук из одного пласта в этом рецепте: «Ед» = «шт/20» в строке-ссылке переопределяет общее число (кружки другого размера).
+const capOf=(x,c)=>{for(const q of allC(x))for(const g of q.ings){const m=g.ref===c.id&&/^шт\/(\d+)$/.exec(String(g.u||'').trim());if(m)return +m[1]}return c.cap};
 const findC=(x,id)=>allC(x).find(q=>q.id===id);
 function calc(x,n){const need={},f={},L=allC(x),byId=Object.fromEntries(L.map(c=>[c.id,c]));
  for(let i=L.length-1;i>=0;i--){const c=L[i];
-  f[c.id]=c.asm?n:c.cap?Math.ceil(n/c.cap):c.base?n/c.base:c.y?(need[c.id]||0)/c.y:0;
+  f[c.id]=c.asm?n:c.cap?Math.ceil(n/capOf(x,c)):c.base?n/c.base:c.y?(need[c.id]||0)/c.y:0;
   for(const g of c.ings)if(g.ref&&g.a!=null&&byId[g.ref]&&!byId[g.ref].cap&&!byId[g.ref].base)need[g.ref]=(need[g.ref]||0)+g.a*f[c.id];}
  return{f,need}}
 const rows=(c,k,x)=>c.ings.map(g=>{const q=g.ref&&findC(x,g.ref);const pf=q&&['pf','sheet'].includes(q.kind);return `<div class="row${pf?' pfrow':''}" ${pf?`onclick="go({t:'pf',i:${R.indexOf(x)},id:'${g.ref}'})"`:''}><span>${g.n[lg]}${g.note&&lg==1?`<br><small class="mute">${g.note}</small>`:''}</span><b>${g.a==null?'—':fa(g.a*k,g.u)}${pf?' <span class="ar">›</span>':''}</b></div>`}).join('');
@@ -76,18 +78,18 @@ function r(){
  if(!x){view={t:'list'};return r()}
  if(view.t==='pf'){const c=findC(x,view.id);
   if(!c){view={t:'list'};return r()}
-  const used=R.flatMap(y=>{const q=findC(y,c.id);if(!q)return[];if(q.cap)return[`${y.n[lg]}: ≈ ${q.cap} ${t(isCake(y)?'ppCake':'pp')}`];const n1=calc(y,1).need[c.id];return n1&&c.y?[`${y.n[lg]}: ≈ ${Math.floor(c.y/n1)} ${t(isCake(y)?'ppCake':'pp')}`]:[]});
+  const used=R.flatMap(y=>{const q=findC(y,c.id);if(!q)return[];if(q.cap)return[`${y.n[lg]}: ≈ ${capOf(y,q)} ${t(isCake(y)?'ppCake':'pp')}`];const n1=calc(y,1).need[c.id];return n1&&c.y?[`${y.n[lg]}: ≈ ${Math.floor(c.y/n1)} ${t(isCake(y)?'ppCake':'pp')}`]:[]});
   const n1=isCake(x)&&c.kind==='pf'&&c.y?calc(x,1).need[c.id]:0;
   if(n1){const C=view.n||4,k=n1*C/c.y;
    app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('porCake')} · ${t('yl')} ${fa(n1*C,'г')}</span><select onchange="view.n=+this.value;r()">${opts(Math.max(20,C),C)}</select></div>${rows(c,k,x)}${steps(c)}`;return}
-  app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('bt')} · ${t('yl')} ${c.y?fa(c.y*B,'г'):(c.cap||1)*B+' '+U.pcs[lg]}</span><select onchange="B=+this.value;r()">${opts(Math.max(10,B),B)}</select></div>${rows(c,B,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}${used.length?`<h2>${t('used')}</h2>${used.map(u=>`<div class="mute">${u}</div>`).join('')}`:''}`;return}
+  app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('bt')} · ${t('yl')} ${c.y?fa(c.y*B,'г'):(capOf(x,c)||1)*B+' '+U.pcs[lg]}</span><select onchange="B=+this.value;r()">${opts(Math.max(10,B),B)}</select></div>${rows(c,B,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}${used.length?`<h2>${t('used')}</h2>${used.map(u=>`<div class="mute">${u}</div>`).join('')}`:''}`;return}
  const {f,need}=calc(x,N);
  const top=c=>x.comps.some(q=>q.kind!=='pf'&&q.ings.some(g=>g.ref===c.id));
  app.innerHTML=`${back}<h1>${x.n[lg]}</h1><div class="mute">${x.c[lg]}</div>${img(x.img,'hero',x.n[lg])}<div class="yield"><span>${t(isCake(x)?'porCake':'porQty')}</span><select onchange="N=+this.value;r()">${opts(60,N)}</select></div>`+
  [...(x.ext||[]).filter(top),...x.comps].map(c=>{const k=c.asm?1:f[c.id];
-  if(c.kind==='pf'||c.kind==='sheet'){if(c.kind==='pf'&&!top(c))return '';const sm=c.cap?`${t('need')}: ${k} × ${c.cap} ${U.pcs[lg]}`:`${t('need')} ${fa(need[c.id]||0,'г')}`;return `<div class="card" onclick="go({t:'pf',i:${view.i},id:'${c.id}',b:${c.cap?k:1},n:${N}})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${sm} ›</small></div></div>`}
+  if(c.kind==='pf'||c.kind==='sheet'){if(c.kind==='pf'&&!top(c))return '';const sm=c.cap?`${t('need')}: ${k} × ${capOf(x,c)} ${U.pcs[lg]}`:`${t('need')} ${fa(need[c.id]||0,'г')}`;return `<div class="card" onclick="go({t:'pf',i:${view.i},id:'${c.id}',b:${c.cap?k:1},n:${N}})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${sm} ›</small></div></div>`}
   const sub=c.asm?t('pl')+' 1 '+(isCake(x)?t('cake'):U.pcs[lg]):c.cap?'× '+k:c.y?t('yl')+' '+fa(c.y*k,'г'):t('pl')+' '+N+' '+U.pcs[lg];
-  return `<details open><summary>${cn(c,k)} <span class="yl">· ${sub}</span></summary>${c.cap?`<div class="mute" style="font-size:13px">${t('cap')} ${c.cap} ${U.pcs[lg]}</div>`:''}${rows(c,k,x)}${steps(c)}${c.yn&&lg==1&&!c.asm?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}</details>`}).join('')+`<h2>${t('al')}</h2><div class="mute">${x.al||'—'}</div>`;
+  return `<details open><summary>${cn(c,k)} <span class="yl">· ${sub}</span></summary>${c.cap?`<div class="mute" style="font-size:13px">${t('cap')} ${capOf(x,c)} ${U.pcs[lg]}</div>`:''}${rows(c,k,x)}${steps(c)}${c.yn&&lg==1&&!c.asm?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}</details>`}).join('')+`<h2>${t('al')}</h2><div class="mute">${x.al||'—'}</div>`;
 }
 const ttl=document.getElementById('ttl'),lgEl=document.getElementById('lg'),app=document.getElementById('app'),foot=document.getElementById('foot');
 
