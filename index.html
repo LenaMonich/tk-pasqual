@@ -48,7 +48,8 @@ const fa=(n,u)=>(u=String(u||'').replace(/^шт\/\d+$/,'шт'),u==='шт')?+n.to
 // {3} в названии заготовки = 3 на один торт/порцию, умножается на выбранное количество.
 // Со словами: {3|кольцо|кольца|колец} (русские формы) или {3|aro|aros} (1 / много).
 const plural=(n,f)=>f.length===3?f[n%10===1&&n%100!==11?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2]:f[n===1?0:1];
-const cn=(c,k)=>c.n[lg].replace(/\{(\d+(?:[.,]\d+)?)((?:\|[^|}]*)*)\}/g,(_,v,w)=>{const n=+(parseFloat(v.replace(',','.'))*(k||1)).toFixed(1);const f=w?w.slice(1).split('|'):[];return f.length?n+' '+plural(n,f):String(n)});
+const cn=(c,k)=>phn(c.n[lg],k);
+const phn=(s,k)=>String(s||'').replace(/\{(\d+(?:[.,]\d+)?)((?:\|[^|}]*)*)\}/g,(_,v,w)=>{const n=+(parseFloat(v.replace(',','.'))*(k||1)).toFixed(1);const f=w?w.slice(1).split('|'):[];return f.length?n+' '+plural(n,f):String(n)});
 const go=v=>{prev=view;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=isCake(R[v.i])?3:5;if(v.t==='pf'&&!v.n)view.n=4;r();scrollTo(0,0)};
 const goBack=()=>{view=prev;prev={t:'list'};r();scrollTo(0,0)};
 const opts=(m,sel)=>Array.from({length:m},(_,i)=>i+1).map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
@@ -61,7 +62,7 @@ function calc(x,n){const need={},f={},L=allC(x),byId=Object.fromEntries(L.map(c=
   f[c.id]=c.asm?n:c.cap?Math.ceil(n/capOf(x,c)):c.base?n/c.base:c.y?(need[c.id]||0)/c.y:0;
   for(const g of c.ings)if(g.ref&&g.a!=null&&byId[g.ref]&&!byId[g.ref].cap&&!byId[g.ref].base)need[g.ref]=(need[g.ref]||0)+g.a*f[c.id];}
  return{f,need}}
-const rows=(c,k,x)=>c.ings.map(g=>{const q=g.ref&&findC(x,g.ref);const pf=q&&['pf','sheet'].includes(q.kind);return `<div class="row${pf?' pfrow':''}" ${pf?`onclick="go({t:'pf',i:${R.indexOf(x)},id:'${g.ref}'})"`:''}><span>${g.n[lg]}${g.note&&lg==1?`<br><small class="mute">${g.note}</small>`:''}</span><b>${g.a==null?'—':fa(g.a*k,g.u)}${pf?' <span class="ar">›</span>':''}</b></div>`}).join('');
+const rows=(c,k,x)=>c.ings.map(g=>{const q=g.ref&&findC(x,g.ref);const pf=q&&['pf','sheet'].includes(q.kind);return `<div class="row${pf?' pfrow':''}" ${pf?`onclick="go({t:'pf',i:${R.indexOf(x)},id:'${g.ref}'})"`:''}><span>${phn(g.n[lg],1)}${g.note&&lg==1?`<br><small class="mute">${g.note}</small>`:''}</span><b>${g.a==null?'—':fa(g.a*k,g.u)}${pf?' <span class="ar">›</span>':''}</b></div>`}).join('');
 const steps=c=>c.steps.length?`<h2>${t('met')}</h2><ol>${c.steps.map(s=>`<li>${s[lg]}</li>`).join('')}</ol>`:'';
 const img=(src,cls,alt)=>src?`<img class="${cls}" src="${src}" alt="${alt||''}" onerror="this.style.display='none'">`:'';
 function langBar(){lgEl.innerHTML=LG.map((x,i)=>`<button class="${i===lg?'on':''}" onclick="setLg(${i})">${x}</button>`).join('')}
