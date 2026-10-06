@@ -83,7 +83,7 @@ function r(){
  if(view.t==='pf'){const c=findC(x,view.id);
   if(!c){view={t:'list'};return r()}
   const used=R.flatMap(y=>{const q=findC(y,c.id);if(!q)return[];if(q.cap)return[`${y.n[lg]}: ≈ ${capOf(y,q)} ${t(isCake(y)?'ppCake':'pp')}`];const n1=calc(y,1).need[c.id];return n1&&c.y?[`${y.n[lg]}: ≈ ${Math.floor(c.y/n1)} ${t(isWeight(y)?'ppW':isCake(y)?'ppCake':'pp')}`]:[]});
-  const n1=isCake(x)&&c.kind==='pf'&&c.y?calc(x,1).need[c.id]:0;
+  const n1=isCake(x)&&c.kind==='pf'&&c.y&&!c.fix?calc(x,1).need[c.id]:0;
   if(n1){const C=view.n||4,k=n1*C/c.y;
    app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('porCake')} · ${t('yl')} ${fa(n1*C,'г')}</span><select onchange="view.n=+this.value;r()">${opts(Math.max(20,C),C)}</select></div>${rows(c,k,x)}${steps(c)}`;return}
   app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('bt')}${c.y?' · '+t('yl')+' '+fa(c.y*B,'г'):c.cap?' · '+t('yl')+' '+capOf(x,c)*B+' '+U.pcs[lg]:''}</span><select onchange="B=+this.value;r()">${opts(Math.max(10,B),B)}</select></div>${rows(c,B,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}${used.length?`<h2>${t('used')}</h2>${used.map(u=>`<div class="mute">${u}</div>`).join('')}`:''}`;return}
