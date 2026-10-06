@@ -47,13 +47,13 @@ const t=k=>UI[k][lg];
 const isWeight=x=>String(x.u||'').trim()==='г';
 const baseW=x=>{const c=x.comps.find(c=>c.kind==='exact'&&c.base);return c?c.base:1000};
 const isCake=x=>x.u?/^торт/i.test(String(x.u).trim()):/торт|tarta|cake/i.test((x.n||[]).join(' '));
-const fa=(n,u)=>(u=String(u||'').replace(/^шт\/\d+$/,'шт'),u==='шт')?+n.toFixed(1)+' '+U.pcs[lg]:+(n<10?n.toFixed(1):Math.round(n))+' '+U.g[lg];
+const fa=(n,u)=>(u=String(u||'').replace(/^шт\/\d+$/,'шт'),u==='шт')?+n.toFixed(1)+' '+U.pcs[lg]:(u&&u!=='г')?+n.toFixed(1)+' '+u:+(n<100?n.toFixed(1):Math.round(n))+' '+U.g[lg];
 // {3} в названии заготовки = 3 на один торт/порцию, умножается на выбранное количество.
 // Со словами: {3|кольцо|кольца|колец} (русские формы) или {3|aro|aros} (1 / много).
 const plural=(n,f)=>f.length===3?f[n%10===1&&n%100!==11?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2]:f[n===1?0:1];
 const cn=(c,k)=>phn(c.n[lg],k);
-const phn=(s,k)=>String(s||'').replace(/\{(\d+(?:[.,]\d+)?)((?:\|[^|}]*)*)\}/g,(_,v,w)=>{const n=+(parseFloat(v.replace(',','.'))*(k||1)).toFixed(1);const f=w?w.slice(1).split('|'):[];return f.length?n+' '+plural(n,f):String(n)});
-const go=v=>{prev=view;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=R[v.i].q||(isWeight(R[v.i])?baseW(R[v.i]):isCake(R[v.i])?3:5);if(v.t==='pf'&&!v.n)view.n=4;r();scrollTo(0,0)};
+const phn=(s,k)=>String(s||'').replace(/\{(\d+(?:[.,]\d+)?)((?:\|[^|}]*)*)\}/g,(_,v,w)=>{const n=+(parseFloat(v.replace(',','.'))*(k||1)).toFixed(1);const f=w?w.slice(1).split('|'):[];return f.length?Math.round(n)+' '+plural(Math.round(n),f):String(n)});
+const go=v=>{prev=view;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=R[v.i].q||R[v.i].kAmt||(isWeight(R[v.i])?baseW(R[v.i]):isCake(R[v.i])?3:5);if(v.t==='pf'&&!v.n)view.n=4;r();scrollTo(0,0)};
 const goBack=()=>{view=prev;prev={t:'list'};r();scrollTo(0,0)};
 const opts=(m,sel)=>Array.from({length:m},(_,i)=>i+1).map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
 const allC=x=>[...(x.ext||[]),...x.comps];
@@ -89,7 +89,7 @@ function r(){
   app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('bt')}${c.y?' · '+t('yl')+' '+fa(c.y*B,'г'):c.cap?' · '+t('yl')+' '+capOf(x,c)*B+' '+U.pcs[lg]:''}</span><select onchange="B=+this.value;r()">${opts(Math.max(10,B),B)}</select></div>${rows(c,B,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}${used.length?`<h2>${t('used')}</h2>${used.map(u=>`<div class="mute">${u}</div>`).join('')}`:''}`;return}
  const {f,need}=calc(x,N);
  const top=c=>x.comps.some(q=>q.kind!=='pf'&&q.ings.some(g=>g.ref===c.id));
- app.innerHTML=`${back}<h1>${x.n[lg]}</h1><div class="mute">${x.c[lg]}</div>${img(x.img,'hero',x.n[lg])}<div class="yield"><span>${t(isWeight(x)?'porW':isCake(x)?'porCake':'porQty')}</span>${isWeight(x)?`<input type="number" inputmode="numeric" min="1" step="10" value="${Math.round(N)}" style="width:110px;font:600 17px system-ui;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-align:right" onchange="N=Math.max(1,+this.value||N);r()">`:`<select onchange="N=+this.value;r()">${opts(60,N)}</select>`}</div>`+
+ app.innerHTML=`${back}<h1>${x.n[lg]}</h1><div class="mute">${x.c[lg]}</div>${img(x.img,'hero',x.n[lg])}<div class="yield"><span>${x.kAmt?phn(x.kName[lg],1)+', '+U.g[lg]:t(isWeight(x)?'porW':isCake(x)?'porCake':'porQty')}</span>${isWeight(x)||x.kAmt?`<input type="number" inputmode="numeric" min="1" step="10" value="${Math.round(N)}" style="width:110px;font:600 17px system-ui;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-align:right" onchange="N=Math.max(1,+this.value||N);r()">`:`<select onchange="N=+this.value;r()">${opts(60,N)}</select>`}</div>`+
  [...(x.ext||[]).filter(top),...x.comps].map(c=>{const k=c.asm?1:f[c.id];
   if(c.kind==='pf'||c.kind==='sheet'){if(c.kind==='pf'&&!top(c))return '';const sm=c.cap?`${t('need')}: ${k} × ${capOf(x,c)} ${U.pcs[lg]}`:`${t('need')} ${fa(need[c.id]||0,'г')}`;return `<div class="card" onclick="go({t:'pf',i:${view.i},id:'${c.id}',b:${c.cap?k:1},n:${N}})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${sm} ›</small></div></div>`}
   const sub=c.asm?t('pl')+' 1 '+(isCake(x)?t('cake'):U.pcs[lg]):c.cap?'× '+k:c.y?t('yl')+' '+fa(c.y*k,'г'):t('pl')+' '+N+' '+U.pcs[lg];
@@ -104,7 +104,10 @@ function msg(title,text){state='msg';ttl.textContent='';langBar();app.innerHTML=
 function show(data){R=data||[];const all={};R.forEach(x=>x.comps.forEach(c=>{all[c.id]=c}));
  R.forEach(x=>{const own=new Set(x.comps.map(c=>c.id)),ext=[],q=[...x.comps];
   while(q.length){const c=q.shift();for(const g of c.ings){const e=g.ref&&all[g.ref];if(e&&!own.has(e.id)){own.add(e.id);ext.push(e);q.push(e)}}}
-  x.ext=ext.reverse()});
+  x.ext=ext.reverse();
+  // «Пересчёт по продукту»: раскладка считается от фактического веса одного продукта (например, белка).
+  if(x.key){for(const c of x.comps)for(const g of c.ings)if(g.p===x.key&&g.a&&!x.kAmt){x.kAmt=g.a;x.kName=g.n}
+   if(x.kAmt)x.comps.forEach(c=>{if(c.kind==='exact')c.base=x.kAmt})}});
  state='ok';r()}
 function load(){
  let cached=null;try{cached=JSON.parse(localStorage.getItem('tk_data')||'null')}catch(e){}
