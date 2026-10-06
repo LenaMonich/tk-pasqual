@@ -47,7 +47,7 @@ const t=k=>UI[k][lg];
 const isWeight=x=>String(x.u||'').trim()==='г';
 const baseW=x=>{const c=x.comps.find(c=>c.kind==='exact'&&c.base);return c?c.base:1000};
 const isCake=x=>x.u?/^торт/i.test(String(x.u).trim()):/торт|tarta|cake/i.test((x.n||[]).join(' '));
-const fa=(n,u)=>(u=String(u||'').replace(/^шт\/\d+$/,'шт'),u==='шт')?+n.toFixed(1)+' '+U.pcs[lg]:(u&&u!=='г')?+n.toFixed(1)+' '+u:+(n<100?n.toFixed(1):Math.round(n))+' '+U.g[lg];
+const fa=(n,u)=>(u=String(u||'').replace(/^шт\/\d+$/,'шт'),u==='шт')?+n.toFixed(1)+' '+U.pcs[lg]:(u&&u!=='г')?(u==='капли'?Math.max(1,Math.round(n)):+n.toFixed(1))+' '+u:+(n<100?n.toFixed(1):Math.round(n))+' '+U.g[lg];
 // {3} в названии заготовки = 3 на один торт/порцию, умножается на выбранное количество.
 // Со словами: {3|кольцо|кольца|колец} (русские формы) или {3|aro|aros} (1 / много).
 const plural=(n,f)=>f.length===3?f[n%10===1&&n%100!==11?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2]:f[n===1?0:1];
