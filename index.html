@@ -32,7 +32,7 @@ nav button{flex:1;border:0;background:none;color:var(--mute);font:600 15px/1.2 s
 nav button.on{color:var(--acc)}
 .foot{text-align:center;font-size:12px;color:var(--mute);margin-top:20px}
 button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px;margin-bottom:10px}summary{cursor:pointer;padding:10px 0;font-weight:600}.yl{color:var(--mute);font-weight:400;font-size:14px}.row.pfrow{background:none;border:0;border-left:5px solid #e0902b;border-radius:4px;padding:10px 12px;margin:8px 0;cursor:pointer;font-weight:700}.pfrow .ar{font-size:22px;line-height:1}.hero{width:100%;max-height:340px;object-fit:cover;border-radius:14px;margin:10px 0 4px;display:block}.th{width:58px;height:58px;object-fit:cover;border-radius:10px;flex:none}select{font:600 17px system-ui;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}</style></head><body><div class="w"><header><h1 id="ttl"></h1><div class="lg" id="lg"></div></header><main id="app"></main><div class="foot" id="foot"></div></div><script>
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px;margin-bottom:10px}summary{cursor:pointer;padding:10px 0;font-weight:600}.yl{color:var(--mute);font-weight:400;font-size:14px}.row.pfrow{background:none;border:0;border-left:5px solid #e0902b;border-radius:4px;padding:10px 12px;margin:8px 0;cursor:pointer;font-weight:700}.pfrow .ar{font-size:22px;line-height:1}.hero{width:100%;max-height:340px;object-fit:cover;border-radius:14px;margin:10px 0 4px;display:block}.th{width:58px;height:58px;object-fit:cover;border-radius:10px;flex:none}select{font:600 17px system-ui;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}.grp{display:flex;align-items:center;gap:8px;margin:18px 0 8px;cursor:pointer;user-select:none}.grp span:first-child{font:600 18px Georgia,serif;flex:1}.grp small{color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:12px}.grp .arr{color:var(--acc);font-size:18px;width:18px;text-align:center}</style></head><body><div class="w"><header><h1 id="ttl"></h1><div class="lg" id="lg"></div></header><main id="app"></main><div class="foot" id="foot"></div></div><script>
 // Адрес опубликованного Apps Script (Развернуть → Веб-приложение, ссылка на /exec).
 const API_URL='https://script.google.com/macros/s/AKfycbxGuzFCJt9PMY5l4gzpdGF41la6KpMUBCgGdG1N7cPuMCBELb_JZUxCwKKUVl_8xKVFGw/exec';
 const tg=window.Telegram&&window.Telegram.WebApp;
@@ -68,6 +68,12 @@ function calc(x,n){const need={},f={},L=allC(x),byId=Object.fromEntries(L.map(c=
 const rows=(c,k,x)=>c.ings.map(g=>{const q=g.ref&&findC(x,g.ref);const pf=q&&['pf','sheet'].includes(q.kind);return `<div class="row${pf?' pfrow':''}" ${pf?`onclick="go({t:'pf',i:${R.indexOf(x)},id:'${g.ref}'})"`:''}><span>${phn(g.n[lg],1)}${g.note&&lg==1?`<br><small class="mute">${g.note}</small>`:''}</span><b>${g.a==null?'—':fa(g.a*k,g.u)}${pf?' <span class="ar">›</span>':''}</b></div>`}).join('');
 const steps=c=>c.steps.length?`<h2>${t('met')}</h2><ol>${c.steps.map(s=>`<li>${s[lg]}</li>`).join('')}</ol>`:'';
 const img=(src,cls,alt)=>src?`<img class="${cls}" src="${src}" alt="${alt||''}" onerror="this.style.display='none'">`:'';
+// Группы на главной: название из столбца «Группа» (перевод для известных), состояние свёрнуто/раскрыто запоминается.
+const GN={'Торты':['Tartas','Торты','Cakes'],'Порционные десерты':['Postres individuales','Порционные десерты','Individual desserts'],'Мелкие десерты':['Pequeños dulces','Мелкие десерты','Small sweets'],'Джемы и кули':['Mermeladas y coulis','Джемы и кули','Jams and coulis'],'Баночки Boiboi':['Tarros Boiboi','Баночки Boiboi','Boiboi jars']};
+const gName=k=>GN[k]?GN[k][lg]:k;
+let OPEN={};try{OPEN=JSON.parse(localStorage.getItem('tk_open')||'{}')}catch(e){}
+const isOpen=(k,def)=>k in OPEN?OPEN[k]:def;
+function tog(k,def){OPEN[k]=!isOpen(k,def);try{localStorage.setItem('tk_open',JSON.stringify(OPEN))}catch(e){}r()}
 function langBar(){lgEl.innerHTML=LG.map((x,i)=>`<button class="${i===lg?'on':''}" onclick="setLg(${i})">${x}</button>`).join('')}
 function setLg(i){lg=i;try{localStorage.setItem('tk_lang',String(i))}catch(e){}if(state==='ok')r();else langBar()}
 function tgBack(){if(!tg||!tg.BackButton||!tg.initData)return;if(view.t==='list')tg.BackButton.hide();else tg.BackButton.show()}
@@ -77,7 +83,11 @@ function r(){
  foot.textContent='';ttl.textContent=view.t==='list'?t('rec'):'';
  const back=`<button class="back" onclick="goBack()">${t('back')}</button>`;
  if(view.t==='list'){if(!R.length){app.innerHTML=`<div class="mute">${t('empty')}</div>`;return}
-  app.innerHTML=R.map((x,i)=>`<div class="card" onclick="go({t:'rec',i:${i}})">${x.img?img(x.img,'th'):`<span class="bar" style="background:#2f9d8a"></span>`}<div><b>${x.n[lg]}</b><small>${x.c[lg]}</small></div></div>`).join('')+`<h2>${t('pf')}</h2>`+R.flatMap((x,i)=>x.comps.filter(c=>c.kind==='pf'||c.kind==='sheet').map(c=>`<div class="card" onclick="go({t:'pf',i:${i},id:'${c.id}'})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${x.n[lg]} · ${t('yl')} ${c.y?fa(c.y,'г'):c.cap+' '+U.pcs[lg]}</small></div></div>`)).join('');return}
+  const card=(x,i)=>`<div class="card" onclick="go({t:'rec',i:${i}})">${x.img?img(x.img,'th'):`<span class="bar" style="background:#2f9d8a"></span>`}<div><b>${x.n[lg]}</b><small>${x.c[lg]}</small></div></div>`;
+  const groups=[];R.forEach((x,i)=>{const k=x.grp||x.c[1]||'—';let g=groups.find(g=>g.k===k);if(!g){g={k,items:[]};groups.push(g)}g.items.push(card(x,i))});
+  const pfs=R.flatMap((x,i)=>x.comps.filter(c=>c.kind==='pf'||c.kind==='sheet').map(c=>`<div class="card" onclick="go({t:'pf',i:${i},id:'${c.id}'})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${x.n[lg]} · ${t('yl')} ${c.y?fa(c.y,'г'):c.cap+' '+U.pcs[lg]}</small></div></div>`));
+  groups.push({k:'__pf',title:t('pf'),items:pfs});
+  app.innerHTML=groups.map((g,gi)=>{const open=isOpen(g.k,gi===0);return `<div class="grp" onclick="tog('${g.k.replace(/'/g,"\\'")}',${gi===0})"><span>${g.title||gName(g.k)}</span><small>${g.items.length}</small><span class="arr">${open?'▾':'▸'}</span></div>${open?g.items.join(''):''}`}).join('');return}
  const x=R[view.i];
  if(!x){view={t:'list'};return r()}
  if(view.t==='pf'){const c=findC(x,view.id);
