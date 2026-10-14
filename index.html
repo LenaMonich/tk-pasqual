@@ -69,11 +69,13 @@ const rows=(c,k,x)=>c.ings.map(g=>{const q=g.ref&&findC(x,g.ref);const pf=q&&['p
 const steps=c=>c.steps.length?`<h2>${t('met')}</h2><ol>${c.steps.map(s=>`<li>${s[lg]}</li>`).join('')}</ol>`:'';
 const img=(src,cls,alt)=>src?`<img class="${cls}" src="${src}" alt="${alt||''}" onerror="this.style.display='none'">`:'';
 // Группы на главной: название из столбца «Группа» (перевод для известных), состояние свёрнуто/раскрыто запоминается.
-const GN={'Торты':['Tartas','Торты','Cakes'],'Порционные десерты':['Postres individuales','Порционные десерты','Individual desserts'],'Мелкие десерты':['Pequeños dulces','Мелкие десерты','Small sweets'],'Джемы и кули':['Mermeladas y coulis','Джемы и кули','Jams and coulis'],'Баночки Boiboi':['Tarros Boiboi','Баночки Boiboi','Boiboi jars']};
+const GN={'Торты':['Tartas','Торты','Cakes'],'Порционные десерты':['Postres individuales','Порционные десерты','Individual desserts'],'Мелкие десерты':['Pequeños dulces','Мелкие десерты','Small sweets'],'Джемы и кули':['Mermeladas y coulis','Джемы и кули','Jams and coulis'],'Бой-бой':['Boi-boi','Бой-бой','Boi-boi'],'Баночки Boiboi':['Boi-boi','Бой-бой','Boi-boi'],'Не в меню':['Fuera de carta','Не в меню','Off the menu']};
+const GORD=['Торты','Порционные десерты','Мелкие десерты','Джемы и кули','Бой-бой','Баночки Boiboi','Не в меню'];
 const gName=k=>GN[k]?GN[k][lg]:k;
 let OPEN={};try{OPEN=JSON.parse(localStorage.getItem('tk_open')||'{}')}catch(e){}
-const isOpen=(k,def)=>k in OPEN?OPEN[k]:def;
-function tog(k,def){OPEN[k]=!isOpen(k,def);try{localStorage.setItem('tk_open',JSON.stringify(OPEN))}catch(e){}r()}
+let PFOPEN=false; // «Полуфабрикаты» всегда свёрнуты при открытии приложения
+const isOpen=(k,def)=>k==='__pf'?PFOPEN:(k in OPEN?OPEN[k]:def);
+function tog(k,def){if(k==='__pf'){PFOPEN=!PFOPEN;return r()}OPEN[k]=!isOpen(k,def);try{localStorage.setItem('tk_open',JSON.stringify(OPEN))}catch(e){}r()}
 function langBar(){lgEl.innerHTML=LG.map((x,i)=>`<button class="${i===lg?'on':''}" onclick="setLg(${i})">${x}</button>`).join('')}
 function setLg(i){lg=i;try{localStorage.setItem('tk_lang',String(i))}catch(e){}if(state==='ok')r();else langBar()}
 function tgBack(){if(!tg||!tg.BackButton||!tg.initData)return;if(view.t==='list')tg.BackButton.hide();else tg.BackButton.show()}
@@ -86,8 +88,9 @@ function r(){
   const card=(x,i)=>`<div class="card" onclick="go({t:'rec',i:${i}})">${x.img?img(x.img,'th'):`<span class="bar" style="background:#2f9d8a"></span>`}<div><b>${x.n[lg]}</b><small>${x.c[lg]}</small></div></div>`;
   const groups=[];R.forEach((x,i)=>{const k=x.grp||x.c[1]||'—';let g=groups.find(g=>g.k===k);if(!g){g={k,items:[]};groups.push(g)}g.items.push(card(x,i))});
   const pfs=R.flatMap((x,i)=>x.comps.filter(c=>c.kind==='pf'||c.kind==='sheet').map(c=>`<div class="card" onclick="go({t:'pf',i:${i},id:'${c.id}'})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${x.n[lg]} · ${t('yl')} ${c.y?fa(c.y,'г'):c.cap+' '+U.pcs[lg]}</small></div></div>`));
-  groups.push({k:'__pf',title:t('pf'),items:pfs});
-  app.innerHTML=groups.map((g,gi)=>{const open=isOpen(g.k,gi===0);return `<div class="grp" onclick="tog('${g.k.replace(/'/g,"\\'")}',${gi===0})"><span>${g.title||gName(g.k)}</span><small>${g.items.length}</small><span class="arr">${open?'▾':'▸'}</span></div>${open?g.items.join(''):''}`}).join('');return}
+  const go_=k=>{const i=GORD.indexOf(k);return i<0?GORD.indexOf('Не в меню')-0.5:i};groups.sort((a,b)=>go_(a.k)-go_(b.k));
+  if(pfs.length)groups.push({k:'__pf',title:t('pf'),items:pfs});
+  app.innerHTML=groups.map((g,gi)=>{const open=isOpen(g.k,g.k==='Торты');return `<div class="grp" onclick="tog('${g.k.replace(/'/g,"\\'")}',${g.k==='Торты'})"><span>${g.title||gName(g.k)}</span><small>${g.items.length}</small><span class="arr">${open?'▾':'▸'}</span></div>${open?g.items.join(''):''}`}).join('');return}
  const x=R[view.i];
  if(!x){view={t:'list'};return r()}
  if(view.t==='pf'){const c=findC(x,view.id);
