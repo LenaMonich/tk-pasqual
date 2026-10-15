@@ -96,6 +96,9 @@ function r(){
  if(view.t==='pf'){const c=findC(x,view.id);
   if(!c){view={t:'list'};return r()}
   const used=R.flatMap(y=>{const q=findC(y,c.id);if(!q)return[];if(q.cap)return[`${y.n[lg]}: ≈ ${capOf(y,q)} ${t(isCake(y)?'ppCake':'pp')}`];const n1=calc(y,1).need[c.id];return n1&&c.y?[`${y.n[lg]}: ≈ ${Math.floor(c.y/n1)} ${t(isWeight(y)?'ppW':isCake(y)?'ppCake':'pp')}`]:[]});
+  const kg=c.key&&c.ings.find(g=>(g.p===c.key||g.ref===c.key)&&g.a);
+  if(kg){const W=view.w||kg.a,k=W/kg.a;
+   app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${phn(kg.n[lg],1)}, ${U.g[lg]}${c.y?' · '+t('yl')+' '+fa(c.y*k,'г'):''}</span><input type="number" inputmode="numeric" min="1" step="10" value="${Math.round(W)}" style="width:110px;font:600 17px system-ui;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-align:right" onchange="view.w=Math.max(1,+this.value||${kg.a});r()"></div>${rows(c,k,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}`;return}
   const n1=isCake(x)&&c.kind==='pf'&&c.y&&!c.fix?calc(x,1).need[c.id]:0;
   if(n1){const C=view.n||4,k=n1*C/c.y;
    app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('porCake')} · ${t('yl')} ${fa(n1*C,'г')}</span><select onchange="view.n=+this.value;r()">${opts(Math.max(20,C),C)}</select></div>${rows(c,k,x)}${steps(c)}`;return}
