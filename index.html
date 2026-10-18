@@ -89,8 +89,9 @@ function r(){
  const back=`<button class="back" onclick="goBack()">${t('back')}</button>`;
  if(view.t==='list'){if(!R.length){app.innerHTML=`<div class="mute">${t('empty')}</div>`;return}
   const card=(x,i)=>`<div class="card" onclick="go({t:'rec',i:${i}})">${x.img?img(imgs(x.img)[0],'th'):`<span class="bar" style="background:#2f9d8a"></span>`}<div><b>${x.n[lg]}</b><small>${x.c[lg]}</small></div></div>`;
-  const groups=[];R.forEach((x,i)=>{const k=x.grp||x.c[1]||'—';let g=groups.find(g=>g.k===k);if(!g){g={k,items:[]};groups.push(g)}g.items.push(card(x,i))});
-  const pfs=R.flatMap((x,i)=>x.comps.filter(c=>c.kind==='pf'||c.kind==='sheet').map(c=>`<div class="card" onclick="go({t:'pf',i:${i},id:'${c.id}'})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${x.n[lg]} · ${t('yl')} ${c.y?fa(c.y,'г'):c.cap+' '+U.pcs[lg]}</small></div></div>`));
+  // Рецепт с группой «Полуфабрикаты» показывается в общем разделе полуфабрикатов, первым.
+  const groups=[],pfRec=[];R.forEach((x,i)=>{if(x.grp==='Полуфабрикаты'){pfRec.push(card(x,i));return}const k=x.grp||x.c[1]||'—';let g=groups.find(g=>g.k===k);if(!g){g={k,items:[]};groups.push(g)}g.items.push(card(x,i))});
+  const pfs=pfRec.concat(R.flatMap((x,i)=>x.comps.filter(c=>c.kind==='pf'||c.kind==='sheet').map(c=>`<div class="card" onclick="go({t:'pf',i:${i},id:'${c.id}'})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${x.n[lg]} · ${t('yl')} ${c.y?fa(c.y,'г'):c.cap+' '+U.pcs[lg]}</small></div></div>`)));
   const go_=k=>{const i=GORD.indexOf(k);return i<0?GORD.indexOf('Не в меню')-0.5:i};groups.sort((a,b)=>go_(a.k)-go_(b.k));
   if(pfs.length)groups.push({k:'__pf',title:t('pf'),items:pfs});
   app.innerHTML=groups.map((g,gi)=>{const open=isOpen(g.k,g.k==='Торты');return `<div class="grp" onclick="tog('${g.k.replace(/'/g,"\\'")}',${g.k==='Торты'})"><span>${g.title||gName(g.k)}</span><small>${g.items.length}</small><span class="arr">${open?'▾':'▸'}</span></div>${open?g.items.join(''):''}`}).join('');return}
