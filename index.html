@@ -32,13 +32,14 @@ nav button{flex:1;border:0;background:none;color:var(--mute);font:600 15px/1.2 s
 nav button.on{color:var(--acc)}
 .foot{text-align:center;font-size:12px;color:var(--mute);margin-top:20px}
 button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px;margin-bottom:10px}summary{cursor:pointer;padding:10px 0;font-weight:600}.yl{color:var(--mute);font-weight:400;font-size:14px}.row.pfrow{background:none;border:0;border-left:5px solid #e0902b;border-radius:4px;padding:10px 12px;margin:8px 0;cursor:pointer;font-weight:700}.pfrow .ar{font-size:22px;line-height:1}.hero{width:100%;max-height:340px;object-fit:cover;border-radius:14px;margin:10px 0 4px;display:block}.th{width:58px;height:58px;object-fit:cover;border-radius:10px;flex:none}select{font:600 17px system-ui;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}.grp{display:flex;align-items:center;gap:8px;margin:18px 0 8px;cursor:pointer;user-select:none}.grp span:first-child{font:600 18px Georgia,serif;flex:1}.grp small{color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:12px}.grp .arr{color:var(--acc);font-size:18px;width:18px;text-align:center}.gal{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:10px 0 4px}.gal .hero{flex:0 0 92%;scroll-snap-align:center;margin:0}</style></head><body><div class="w"><header><h1 id="ttl"></h1><div class="lg" id="lg"></div></header><main id="app"></main><div class="foot" id="foot"></div></div><script>
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 14px;margin-bottom:10px}summary{cursor:pointer;padding:10px 0;font-weight:600}.yl{color:var(--mute);font-weight:400;font-size:14px}.row.pfrow{background:none;border:0;border-left:5px solid #e0902b;border-radius:4px;padding:10px 12px;margin:8px 0;cursor:pointer;font-weight:700}.pfrow .ar{font-size:22px;line-height:1}.hero{width:100%;max-height:340px;object-fit:cover;border-radius:14px;margin:10px 0 4px;display:block}.th{width:58px;height:58px;object-fit:cover;border-radius:10px;flex:none}select{font:600 17px system-ui;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}.srch{width:100%;box-sizing:border-box;font:inherit;font-size:16px;padding:11px 14px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin:4px 0 4px}
+.grp{display:flex;align-items:center;gap:8px;margin:18px 0 8px;cursor:pointer;user-select:none}.grp span:first-child{font:600 18px Georgia,serif;flex:1}.grp small{color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:1px 8px;font-size:12px}.grp .arr{color:var(--acc);font-size:18px;width:18px;text-align:center}.gal{display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:10px 0 4px}.gal .hero{flex:0 0 92%;scroll-snap-align:center;margin:0}</style></head><body><div class="w"><header><h1 id="ttl"></h1><div class="lg" id="lg"></div></header><main id="app"></main><div class="foot" id="foot"></div></div><script>
 // Адрес опубликованного Apps Script (Развернуть → Веб-приложение, ссылка на /exec).
 const API_URL='https://script.google.com/macros/s/AKfycbxGuzFCJt9PMY5l4gzpdGF41la6KpMUBCgGdG1N7cPuMCBELb_JZUxCwKKUVl_8xKVFGw/exec';
 const tg=window.Telegram&&window.Telegram.WebApp;
 let R=[];
 const LG=['ES','RU','EN'];let lg=1,view={t:'list'},prev={t:'list'},N=5,B=1;
-const UI={rec:['Recetas','Техкарты','Recipes'],pf:['Semiacabados','Полуфабрикаты','Semi-finished'],parts:['preparaciones','заготовок','components'],por:['Cantidad de porciones','Количество порций','Number of portions'],back:['‹ Atrás','‹ Назад','‹ Back'],yl:['rendimiento','выход','yield'],pl:['para','на','for'],cap:['1 receta = hasta','1 раскладка = до','1 recipe = up to'],need:['necesario','нужно','needed'],bt:['Recetas','Раскладок','Recipes'],used:['Se usa en','Где используется','Used in'],pp:['porciones de una receta','порций из одной раскладки','portions from one recipe'],ppCake:['tartas de una receta','тортов из одной раскладки','cakes from one recipe'],porCake:['Cantidad de tartas','Количество тортов','Number of cakes'],porQty:['Cantidad','Количество','Quantity'],porW:['Rendimiento, g','Выход, г','Yield, g'],ppW:['g de producto de una receta','г готового из одной раскладки','g of product from one recipe'],cake:['tarta','торт','cake'],met:['Método','Способ приготовления','Method'],al:['Alérgenos','Аллергены','Allergens'],
+const UI={rec:['Recetas','Техкарты','Recipes'],find:['Buscar receta o PF','Поиск рецепта или ПФ','Search recipe or PF'],none:['Nada encontrado','Ничего не найдено','Nothing found'],pf:['Semiacabados','Полуфабрикаты','Semi-finished'],parts:['preparaciones','заготовок','components'],por:['Cantidad de porciones','Количество порций','Number of portions'],back:['‹ Atrás','‹ Назад','‹ Back'],yl:['rendimiento','выход','yield'],pl:['para','на','for'],cap:['1 receta = hasta','1 раскладка = до','1 recipe = up to'],need:['necesario','нужно','needed'],bt:['Recetas','Раскладок','Recipes'],used:['Se usa en','Где используется','Used in'],pp:['porciones de una receta','порций из одной раскладки','portions from one recipe'],ppCake:['tartas de una receta','тортов из одной раскладки','cakes from one recipe'],porCake:['Cantidad de tartas','Количество тортов','Number of cakes'],porQty:['Cantidad','Количество','Quantity'],porW:['Rendimiento, g','Выход, г','Yield, g'],ppW:['g de producto de una receta','г готового из одной раскладки','g of product from one recipe'],cake:['tarta','торт','cake'],met:['Método','Способ приготовления','Method'],al:['Alérgenos','Аллергены','Allergens'],
  load:['Cargando…','Загрузка…','Loading…'],noAcc:['Sin acceso','Нет доступа','No access'],noAccTxt:['Envíe este ID al administrador:','Передайте этот ID администратору:','Send this ID to the administrator:'],badAuth:['Abra la app desde el bot de Telegram','Откройте приложение из бота в Telegram','Open the app from the Telegram bot'],err:['Error de carga','Ошибка загрузки','Loading error'],retry:['Reintentar','Повторить','Retry'],empty:['No hay recetas','Рецептов пока нет','No recipes yet']};
 const U={g:['g','г','g'],kg:['kg','кг','kg'],pcs:['uds','шт','pcs']};
 const t=k=>UI[k][lg];
@@ -82,6 +83,20 @@ function tog(k,def){if(k==='__pf'){PFOPEN=!PFOPEN;return r()}OPEN[k]=!isOpen(k,d
 function langBar(){lgEl.innerHTML=LG.map((x,i)=>`<button class="${i===lg?'on':''}" onclick="setLg(${i})">${x}</button>`).join('')}
 function setLg(i){lg=i;try{localStorage.setItem('tk_lang',String(i))}catch(e){}if(state==='ok')r();else langBar()}
 function tgBack(){if(!tg||!tg.BackButton||!tg.initData)return;if(view.t==='list')tg.BackButton.hide();else tg.BackButton.show()}
+// Поиск: по названиям рецептов и полуфабрикатов на всех трёх языках, без учёта регистра и «ё».
+let Q='';const nrm=v=>String(v||'').toLowerCase().replace(/ё/g,'е');
+function listHTML(card){
+ const q=nrm(Q).trim();
+ if(q){const hit=n=>n.some(v=>nrm(v).includes(q));
+  const res=[],pres=[];R.forEach((x,i)=>{if(hit(x.n))res.push(card(x,i));x.comps.forEach(c=>{if((c.kind==='pf'||c.kind==='sheet')&&hit(c.n))pres.push(pfCard(x,i,c))})});res.push(...pres);
+  return res.length?res.join(''):`<div class="mute">${t('none')}</div>`}
+  // Рецепт с группой «Полуфабрикаты» показывается в общем разделе полуфабрикатов, первым.
+  const groups=[],pfRec=[];R.forEach((x,i)=>{if(x.grp==='Полуфабрикаты'){pfRec.push(card(x,i));return}const k=x.grp||x.c[1]||'—';let g=groups.find(g=>g.k===k);if(!g){g={k,items:[]};groups.push(g)}g.items.push(card(x,i))});
+  const pfs=pfRec.concat(R.flatMap((x,i)=>x.comps.filter(c=>c.kind==='pf'||c.kind==='sheet').map(c=>pfCard(x,i,c))));
+  const go_=k=>{const i=GORD.indexOf(k);return i<0?GORD.indexOf('Не в меню')-0.5:i};groups.sort((a,b)=>go_(a.k)-go_(b.k));
+  if(pfs.length)groups.push({k:'__pf',title:t('pf'),items:pfs});
+  return groups.map((g,gi)=>{const open=isOpen(g.k,g.k==='Торты');return `<div class="grp" onclick="tog('${g.k.replace(/'/g,"\\'")}',${g.k==='Торты'})"><span>${g.title||gName(g.k)}</span><small>${g.items.length}</small><span class="arr">${open?'▾':'▸'}</span></div>${open?g.items.join(''):''}`}).join('');}
+const pfCard=(x,i,c)=>`<div class="card" onclick="go({t:'pf',i:${i},id:'${c.id}'})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${x.n[lg]} · ${t('yl')} ${c.y?fa(c.y,'г'):c.cap+' '+U.pcs[lg]}</small></div></div>`;
 function r(){
  document.documentElement.lang=['es','ru','en'][lg];
  langBar();tgBack();
@@ -89,12 +104,9 @@ function r(){
  const back=`<button class="back" onclick="goBack()">${t('back')}</button>`;
  if(view.t==='list'){if(!R.length){app.innerHTML=`<div class="mute">${t('empty')}</div>`;return}
   const card=(x,i)=>`<div class="card" onclick="go({t:'rec',i:${i}})">${x.img?img(imgs(x.img)[0],'th'):`<span class="bar" style="background:#2f9d8a"></span>`}<div><b>${x.n[lg]}</b><small>${x.c[lg]}</small></div></div>`;
-  // Рецепт с группой «Полуфабрикаты» показывается в общем разделе полуфабрикатов, первым.
-  const groups=[],pfRec=[];R.forEach((x,i)=>{if(x.grp==='Полуфабрикаты'){pfRec.push(card(x,i));return}const k=x.grp||x.c[1]||'—';let g=groups.find(g=>g.k===k);if(!g){g={k,items:[]};groups.push(g)}g.items.push(card(x,i))});
-  const pfs=pfRec.concat(R.flatMap((x,i)=>x.comps.filter(c=>c.kind==='pf'||c.kind==='sheet').map(c=>`<div class="card" onclick="go({t:'pf',i:${i},id:'${c.id}'})"><span class="bar" style="background:#e0902b"></span><div><b>${cn(c)}</b><small>${x.n[lg]} · ${t('yl')} ${c.y?fa(c.y,'г'):c.cap+' '+U.pcs[lg]}</small></div></div>`)));
-  const go_=k=>{const i=GORD.indexOf(k);return i<0?GORD.indexOf('Не в меню')-0.5:i};groups.sort((a,b)=>go_(a.k)-go_(b.k));
-  if(pfs.length)groups.push({k:'__pf',title:t('pf'),items:pfs});
-  app.innerHTML=groups.map((g,gi)=>{const open=isOpen(g.k,g.k==='Торты');return `<div class="grp" onclick="tog('${g.k.replace(/'/g,"\\'")}',${g.k==='Торты'})"><span>${g.title||gName(g.k)}</span><small>${g.items.length}</small><span class="arr">${open?'▾':'▸'}</span></div>${open?g.items.join(''):''}`}).join('');return}
+  if(!document.getElementById('q'))app.innerHTML=`<input id="q" class="srch" type="search" placeholder="${t('find')}" oninput="Q=this.value;r()"><div id="lst"></div>`;
+  const qi=document.getElementById('q');qi.placeholder=t('find');qi.value=Q;
+  document.getElementById('lst').innerHTML=listHTML(card);return}
  const x=R[view.i];
  if(!x){view={t:'list'};return r()}
  if(view.t==='pf'){const c=findC(x,view.id);
