@@ -54,7 +54,7 @@ const fa=(n,u)=>(u=String(u||'').replace(/^шт\/\d+$/,'шт'),u==='шт')?+n.to
 const plural=(n,f)=>f.length===3?f[n%10===1&&n%100!==11?0:n%10>=2&&n%10<=4&&(n%100<10||n%100>=20)?1:2]:f[n===1?0:1];
 const cn=(c,k)=>phn(c.n[lg],k);
 const phn=(s,k)=>String(s||'').replace(/\{(\d+(?:[.,]\d+)?)((?:\|[^|}]*)*)\}/g,(_,v,w)=>{const n=+(parseFloat(v.replace(',','.'))*(k||1)).toFixed(1);const f=w?w.slice(1).split('|'):[];return f.length?Math.round(n)+' '+plural(Math.round(n),f):String(n)});
-const go=v=>{prev=view;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=R[v.i].q||R[v.i].kAmt||(isWeight(R[v.i])?baseW(R[v.i]):isCake(R[v.i])?3:5);if(v.t==='pf'&&!v.n)view.n=4;r();scrollTo(0,0)};
+const go=v=>{prev=view;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=R[v.i].q||R[v.i].kAmt||(isWeight(R[v.i])?baseW(R[v.i]):isCake(R[v.i])?3:5);if(v.t==='pf'&&!v.n){const x=R[v.i],c=x&&findC(x,v.id);view.n=c&&c.key==='шт'&&!isCake(x)?(prev.t==='rec'&&prev.i===v.i?N:x.q||10):4}r();scrollTo(0,0)};
 const goBack=()=>{view=prev;prev={t:'list'};r();scrollTo(0,0)};
 const opts=(m,sel)=>Array.from({length:m},(_,i)=>i+1).map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
 const allC=x=>[...(x.ext||[]),...x.comps];
@@ -115,9 +115,11 @@ function r(){
   const kg=c.key&&c.ings.find(g=>(g.p===c.key||g.ref===c.key)&&g.a);
   if(kg){const W=view.w||kg.a,k=W/kg.a;
    app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${phn(kg.n[lg],1)}, ${U.g[lg]}${c.y?' · '+t('yl')+' '+fa(c.y*k,'г'):''}</span><input type="number" inputmode="numeric" min="1" step="10" value="${Math.round(W)}" style="width:110px;font:600 17px system-ui;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-align:right" onchange="view.w=Math.max(1,+this.value||${kg.a});r()"></div>${rows(c,k,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}`;return}
-  const n1=isCake(x)&&c.kind==='pf'&&c.y&&!c.fix?calc(x,1).need[c.id]:0;
-  if(n1){const C=view.n||4,k=n1*C/c.y;
-   app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('porCake')} · ${t('yl')} ${fa(n1*C,'г')}</span><select onchange="view.n=+this.value;r()">${opts(Math.max(20,C),C)}</select></div>${rows(c,k,x)}${steps(c)}`;return}
+  // «шт» в «Пересчёт по продукту» у ПФ: страница ПФ считается по количеству штук десерта, а не раскладками.
+  const pcs=c.key==='шт'&&!isCake(x);
+  const n1=(isCake(x)||pcs)&&c.kind==='pf'&&c.y&&!c.fix?calc(x,1).need[c.id]:0;
+  if(n1){const C=view.n||(pcs?x.q||10:4),k=n1*C/c.y;
+   app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t(pcs?'porQty':'porCake')} · ${t('yl')} ${fa(n1*C,'г')}</span><select onchange="view.n=+this.value;r()">${opts(Math.max(pcs?60:20,C),C)}</select></div>${rows(c,k,x)}${steps(c)}`;return}
   app.innerHTML=`${back}<h1>${cn(c)}</h1><div class="mute">${x.n[lg]}</div><div class="yield"><span>${t('bt')}${c.y?' · '+t('yl')+' '+fa(c.y*B,'г'):c.cap?' · '+t('yl')+' '+capOf(x,c)*B+' '+U.pcs[lg]:''}</span><select onchange="B=+this.value;r()">${opts(Math.max(10,B),B)}</select></div>${rows(c,B,x)}${steps(c)}${c.yn&&lg==1?`<div class="mute" style="padding:8px 0">${c.yn}</div>`:''}${used.length?`<h2>${t('used')}</h2>${used.map(u=>`<div class="mute">${u}</div>`).join('')}`:''}`;return}
  const {f,need}=calc(x,N);
  const top=c=>x.comps.some(q=>q.kind!=='pf'&&q.ings.some(g=>g.ref===c.id));
