@@ -59,6 +59,8 @@ const keyPcs=c=>{const m=/^шт(?:\/(\d+))?$/.exec(String(c&&c.key||'').trim());
 const go=v=>{prev=view;prev.N0=N;view=v;B=v.b||1;if(v.t==='rec'&&R[v.i])N=v.p||R[v.i].q||R[v.i].kAmt||(isWeight(R[v.i])?baseW(R[v.i]):isCake(R[v.i])?3:5);if(v.t==='pf'&&!v.n){const x=R[v.i],c=x&&findC(x,v.id);view.n=c&&keyPcs(c)&&!isCake(x)?(keyPcs(c).d||(prev.t==='rec'&&prev.i===v.i?N:x.q||10)):4}r();scrollTo(0,0)};
 const goBack=()=>{view=prev;if(prev.N0)N=prev.N0;prev={t:'list'};r();scrollTo(0,0)};
 const opts=(m,sel)=>Array.from({length:m},(_,i)=>i+1).map(n=>`<option ${n===sel?'selected':''}>${n}</option>`).join('');
+// Рецепт-набор, где только ПФ (например «ПФ для роллов»): сам рецепт не показываем, его ПФ видны в разделе «Полуфабрикаты».
+const pfOnly=x=>x.comps.length>0&&x.comps.every(c=>c.kind==='pf'||c.kind==='sheet');
 const allC=x=>[...(x.ext||[]),...x.comps];
 // Сколько штук из одного пласта в этом рецепте: «Ед» = «шт/20» в строке-ссылке переопределяет общее число (кружки другого размера).
 const capOf=(x,c)=>{for(const q of allC(x))for(const g of q.ings){const m=g.ref===c.id&&/^шт\/(\d+)$/.exec(String(g.u||'').trim());if(m)return +m[1]}return c.cap};
@@ -69,7 +71,7 @@ function calc(x,n){const need={},f={},L=allC(x),byId=Object.fromEntries(L.map(c=
   for(const g of c.ings)if(g.ref&&g.a!=null&&byId[g.ref]&&!byId[g.ref].cap&&!byId[g.ref].base)need[g.ref]=(need[g.ref]||0)+g.a*f[c.id];}
  return{f,need}}
 // Ссылка_ID = ID рецепта (например, ПФ тесто, которое считается порциями): «Ед» = «г/2100» — 2100 г готового из 1 порции; строка показывает граммы и порции и открывает рецепт на нужное число порций.
-const recRow=(g,k)=>{const j=R.findIndex(y=>y.id===g.ref),m=/^г\/(\d+(?:\.\d+)?)$/.exec(String(g.u||'').trim());if(j<0)return null;const w=g.a==null?null:g.a*k,p=m&&w!=null?w/+m[1]:null;return `<div class="row pfrow" onclick="go({t:'rec',i:${j},p:${p?Math.max(1,Math.ceil(p-1e-9)):0}})"><span>${phn(g.n[lg]||R[j].n[lg],1)}${g.note&&lg==1?`<br><small class="mute">${g.note}</small>`:''}</span><b>${w==null?'—':fa(w,'г')}${p?` <small class="mute" style="white-space:nowrap">≈ ${+p.toFixed(1)} ${t('prt')}</small>`:''} <span class="ar">›</span></b></div>`};
+const recRow=(g,k)=>{const j=R.findIndex(y=>y.id===g.ref),m=/^г\/(\d+(?:\.\d+)?)$/.exec(String(g.u||'').trim());if(j<0&&!m)return null;const w=g.a==null?null:g.a*k,p=m&&w!=null?w/+m[1]:null;return `<div class="row${j<0?'':' pfrow'}" ${j<0?'':`onclick="go({t:'rec',i:${j},p:${p?Math.max(1,Math.ceil(p-1e-9)):0}})"`}><span>${phn(g.n[lg]||(j<0?'':R[j].n[lg]),1)}${g.note&&lg==1?`<br><small class="mute">${g.note}</small>`:''}</span><b>${w==null?'—':fa(w,'г')}${p?` <small class="mute" style="white-space:nowrap">≈ ${+p.toFixed(1)} ${t('prt')}</small>`:''}${j<0?'':' <span class="ar">›</span>'}</b></div>`};
 const rows=(c,k,x)=>c.ings.map(g=>{const q=g.ref&&findC(x,g.ref);if(g.ref&&!q){const h=recRow(g,k);if(h)return h}const pf=q&&['pf','sheet'].includes(q.kind);return `<div class="row${pf?' pfrow':''}" ${pf?`onclick="go({t:'pf',i:${R.indexOf(x)},id:'${g.ref}'})"`:''}><span>${phn(g.n[lg],1)}${g.note&&lg==1?`<br><small class="mute">${g.note}</small>`:''}</span><b>${g.a==null?'—':fa(g.a*k,g.u)}${pf?' <span class="ar">›</span>':''}</b></div>`}).join('');
 const steps=c=>c.steps.length?`<h2>${t('met')}</h2><ol>${c.steps.map(s=>`<li>${s[lg]}</li>`).join('')}</ol>`:'';
 // В столбце «Фото» можно перечислить несколько файлов через «;» — на главной первое, в рецепте листаются все.
@@ -92,10 +94,10 @@ let Q='';const nrm=v=>String(v||'').toLowerCase().replace(/ё/g,'е');
 function listHTML(card){
  const q=nrm(Q).trim();
  if(q){const hit=n=>n.some(v=>nrm(v).includes(q));
-  const res=[],pres=[];R.forEach((x,i)=>{if(hit(x.n))res.push(card(x,i));x.comps.forEach(c=>{if((c.kind==='pf'||c.kind==='sheet')&&hit(c.n))pres.push(pfCard(x,i,c))})});res.push(...pres);
+  const res=[],pres=[];R.forEach((x,i)=>{if(hit(x.n)&&!pfOnly(x))res.push(card(x,i));x.comps.forEach(c=>{if((c.kind==='pf'||c.kind==='sheet')&&hit(c.n))pres.push(pfCard(x,i,c))})});res.push(...pres);
   return res.length?res.join(''):`<div class="mute">${t('none')}</div>`}
   // Рецепт с группой «Полуфабрикаты» показывается в общем разделе полуфабрикатов, первым.
-  const groups=[],pfRec=[];R.forEach((x,i)=>{if(x.grp==='Полуфабрикаты'){pfRec.push(card(x,i));return}const k=x.grp||x.c[1]||'—';let g=groups.find(g=>g.k===k);if(!g){g={k,items:[]};groups.push(g)}g.items.push(card(x,i))});
+  const groups=[],pfRec=[];R.forEach((x,i)=>{if(pfOnly(x))return;if(x.grp==='Полуфабрикаты'){pfRec.push(card(x,i));return}const k=x.grp||x.c[1]||'—';let g=groups.find(g=>g.k===k);if(!g){g={k,items:[]};groups.push(g)}g.items.push(card(x,i))});
   const pfs=pfRec.concat(R.flatMap((x,i)=>x.comps.filter(c=>c.kind==='pf'||c.kind==='sheet').map(c=>pfCard(x,i,c))));
   const go_=k=>{const i=GORD.indexOf(k);return i<0?GORD.indexOf('Не в меню')-0.5:i};groups.sort((a,b)=>go_(a.k)-go_(b.k));
   if(pfs.length)groups.push({k:'__pf',title:t('pf'),items:pfs});
