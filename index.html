@@ -144,6 +144,8 @@ function show(data){R=data||[];const all={};R.forEach(x=>x.comps.forEach(c=>{all
   // «Пересчёт по продукту»: раскладка считается от фактического веса одного продукта (например, белка).
   if(x.key){for(const c of x.comps)for(const g of c.ings)if(g.p===x.key&&g.a&&!x.kAmt){x.kAmt=g.a;x.kName=g.n}
    if(x.kAmt)x.comps.forEach(c=>{if(c.kind==='exact')c.base=x.kAmt})}});
+ // hide: рецепт не виден этой роли, пришёл только ради общих ПФ — заготовки уже подтянуты в ext, сам рецепт не показываем.
+ R=R.filter(x=>!x.hide);
  state='ok';r()}
 function load(){
  let cached=null;try{cached=JSON.parse(localStorage.getItem('tk_data')||'null')}catch(e){}
